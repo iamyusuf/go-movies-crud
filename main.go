@@ -1,5 +1,13 @@
 package main
 
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/gorilla/mux"
+	"log"
+	"net/http"
+)
+
 type Movie struct {
 	ID       string    `json:"id"`
 	Isbn     string    `json:"isbn"`
@@ -37,5 +45,18 @@ func init() {
 }
 
 func main() {
+	r := mux.NewRouter()
 
+	r.HandleFunc("/movies", getMovies).Methods("GET")
+
+	fmt.Println("starting server at port 8080")
+
+	if err := http.ListenAndServe(":8080", r); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func getMovies(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(movies)
 }

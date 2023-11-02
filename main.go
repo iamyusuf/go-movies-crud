@@ -48,6 +48,8 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/movies", getMovies).Methods("GET")
+	r.HandleFunc("/movies/{id}", getMovie).Methods("GET")
+	r.HandleFunc("/movies/{id}", deleteMovie).Methods("DELETE")
 
 	fmt.Println("starting server at port 8080")
 
@@ -56,7 +58,35 @@ func main() {
 	}
 }
 
+func getMovie(w http.ResponseWriter, r *http.Request) {
+	addHeader(w)
+	id := mux.Vars(r)["id"]
+
+	for _, movie := range movies {
+		if movie.ID == id {
+			json.NewEncoder(w).Encode(movie)
+			return
+		}
+	}
+}
+
+func deleteMovie(w http.ResponseWriter, r *http.Request) {
+	addHeader(w)
+	id := mux.Vars(r)["id"]
+
+	for index, movie := range movies {
+		if movie.ID == id {
+			movies = append(movies[:index], movies[index+1:]...)
+			break
+		}
+	}
+}
+
 func getMovies(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
+	addHeader(w)
 	json.NewEncoder(w).Encode(movies)
+}
+
+func addHeader(w http.ResponseWriter) {
+	w.Header().Add("Content-Type", "application/json")
 }

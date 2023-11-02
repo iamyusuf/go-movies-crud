@@ -49,6 +49,8 @@ func init() {
 func main() {
 	r := mux.NewRouter()
 
+	r.Use(headerMiddleware)
+
 	r.HandleFunc("/movies", getMovies).Methods("GET")
 	r.HandleFunc("/movies/{id}", getMovie).Methods("GET")
 	r.HandleFunc("/movies", createMovie).Methods("POST")
@@ -63,7 +65,6 @@ func main() {
 }
 
 func updateMovie(w http.ResponseWriter, r *http.Request) {
-	addHeader(w)
 	id := mux.Vars(r)["id"]
 
 	for index, movie := range movies {
@@ -80,7 +81,6 @@ func updateMovie(w http.ResponseWriter, r *http.Request) {
 }
 
 func createMovie(w http.ResponseWriter, r *http.Request) {
-	addHeader(w)
 	var movie Movie
 	_ = json.NewDecoder(r.Body).Decode(&movie)
 	movie.ID = strconv.Itoa(rand.Intn(100000))
@@ -89,7 +89,6 @@ func createMovie(w http.ResponseWriter, r *http.Request) {
 }
 
 func getMovie(w http.ResponseWriter, r *http.Request) {
-	addHeader(w)
 	id := mux.Vars(r)["id"]
 
 	for _, movie := range movies {
@@ -101,7 +100,6 @@ func getMovie(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteMovie(w http.ResponseWriter, r *http.Request) {
-	addHeader(w)
 	id := mux.Vars(r)["id"]
 
 	for index, movie := range movies {
@@ -115,10 +113,5 @@ func deleteMovie(w http.ResponseWriter, r *http.Request) {
 }
 
 func getMovies(w http.ResponseWriter, r *http.Request) {
-	addHeader(w)
 	json.NewEncoder(w).Encode(movies)
-}
-
-func addHeader(w http.ResponseWriter) {
-	w.Header().Add("Content-Type", "application/json")
 }

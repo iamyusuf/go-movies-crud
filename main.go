@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"log"
+	"math/rand"
 	"net/http"
+	"strconv"
 )
 
 type Movie struct {
@@ -49,6 +51,7 @@ func main() {
 
 	r.HandleFunc("/movies", getMovies).Methods("GET")
 	r.HandleFunc("/movies/{id}", getMovie).Methods("GET")
+	r.HandleFunc("/movies", createMovie).Methods("POST")
 	r.HandleFunc("/movies/{id}", deleteMovie).Methods("DELETE")
 
 	fmt.Println("starting server at port 8080")
@@ -56,6 +59,15 @@ func main() {
 	if err := http.ListenAndServe(":8080", r); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func createMovie(w http.ResponseWriter, r *http.Request) {
+	addHeader(w)
+	var movie Movie
+	_ = json.NewDecoder(r.Body).Decode(&movie)
+	movie.ID = strconv.Itoa(rand.Intn(100000))
+	movies = append(movies, movie)
+	json.NewEncoder(w).Encode(movie)
 }
 
 func getMovie(w http.ResponseWriter, r *http.Request) {
